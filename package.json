@@ -1,6 +1,7 @@
 {
   "name": "audio-duration-tool",
   "version": "1.0.0",
+  "type": "module",
   "description": "Calculate actual audio duration from Excel audio URLs",
   "main": "server.js",
   "scripts": {
