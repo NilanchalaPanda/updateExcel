@@ -1,12 +1,12 @@
-const ffprobe = require("ffprobe-static");
-const { execFile } = require("child_process");
-const { promisify } = require("util");
+import ffprobe from "ffprobe-static";
+import { execFile } from "child_process";
+import { promisify } from "util";
 
 const execFileAsync = promisify(execFile);
 
 const durationCache = new Map();
 
-async function getAudioDuration(url) {
+export async function getAudioDuration(url) {
   if (!url) {
     return null;
   }
@@ -34,7 +34,7 @@ async function getAudioDuration(url) {
   return duration;
 }
 
-function formatDuration(seconds) {
+export function formatDuration(seconds) {
   if (!seconds) {
     return "0 secs";
   }
@@ -48,8 +48,3 @@ function formatDuration(seconds) {
 
   return `${mins}m ${secs}s`;
 }
-
-module.exports = {
-  getAudioDuration,
-  formatDuration,
-};

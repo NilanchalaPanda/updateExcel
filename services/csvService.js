@@ -1,12 +1,14 @@
-const csv = require("csv-parser");
-const { format } = require("@fast-csv/format");
-const pLimit = require("p-limit").default;
+import csv from "csv-parser";
+import { format } from "@fast-csv/format";
+import pLimit from "p-limit";
 
-const { getAudioDuration, formatDuration } = require("./audioService");
+// const { getAudioDuration, formatDuration } = require("./audioService");
+
+import { getAudioDuration, formatDuration } from "./audioService.js";
 
 const limit = pLimit(5);
 
-async function processCsv(buffer) {
+export async function processCsv(buffer) {
   const rows = [];
 
   await new Promise((resolve, reject) => {
@@ -76,7 +78,3 @@ function generateCsvBuffer(rows) {
     csvStream.end();
   });
 }
-
-module.exports = {
-  processCsv,
-};
