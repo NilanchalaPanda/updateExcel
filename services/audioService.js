@@ -1,43 +1,35 @@
-import ffprobe from "ffprobe-static";
-import { execFile } from "child_process";
-import { promisify } from "util";
+import { parseStream } from "music-metadata";
+import got from "got";
 
-const execFileAsync = promisify(execFile);
-
-const durationCache = new Map();
-
+/**
+ * Get audio duration from a remote URL (Supabase supported)
+ */
 export async function getAudioDuration(url) {
-  if (!url) {
+  if (!url) return null;
+
+  try {
+    // Create readable stream from URL
+    const stream = got.stream(url);
+
+    // Extract metadata
+    const metadata = await parseStream(stream, null, {
+      duration: true,
+    });
+
+    const duration = Math.floor(metadata.format.duration || 0);
+
+    return duration;
+  } catch (err) {
+    console.error("Error getting duration:", err.message);
     return null;
   }
-
-  const cached = durationCache.get(url);
-
-  if (cached) {
-    return cached;
-  }
-
-  const { stdout } = await execFileAsync(ffprobe.path, [
-    "-v",
-    "error",
-    "-show_entries",
-    "format=duration",
-    "-of",
-    "default=noprint_wrappers=1:nokey=1",
-    url,
-  ]);
-
-  const duration = Math.floor(parseFloat(stdout.trim()));
-
-  durationCache.set(url, duration);
-
-  return duration;
 }
 
+/**
+ * Format duration nicely
+ */
 export function formatDuration(seconds) {
-  if (!seconds) {
-    return "0 secs";
-  }
+  if (!seconds) return "0 secs";
 
   if (seconds < 60) {
     return `${seconds.toFixed(3)} secs`;
