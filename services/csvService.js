@@ -1,8 +1,7 @@
 import csv from "csv-parser";
 import { format } from "@fast-csv/format";
 import pLimit from "p-limit";
-
-// const { getAudioDuration, formatDuration } = require("./audioService");
+import { Readable } from "stream";
 
 import { getAudioDuration, formatDuration } from "./audioService.js";
 
@@ -12,9 +11,7 @@ export async function processCsv(buffer) {
   const rows = [];
 
   await new Promise((resolve, reject) => {
-    const stream = require("stream");
-
-    const readable = new stream.Readable();
+    const readable = new Readable();
 
     readable.push(buffer);
     readable.push(null);
@@ -43,18 +40,22 @@ export async function processCsv(buffer) {
           const duration = await getAudioDuration(audioUrl);
 
           row["Actual Audio Duration (Seconds)"] = duration;
-
-          row["Actual Audio Duration (Formatted)"] = formatDuration(duration);
+          row["Actual Audio Duration (Formatted)"] =
+            formatDuration(duration);
         } catch (error) {
-          row["Actual Audio Duration (Seconds)"] = "ERROR";
+          console.error(
+            `Failed to process ${row["Audio Name"]}:`,
+            error.message,
+          );
 
+          row["Actual Audio Duration (Seconds)"] = "ERROR";
           row["Actual Audio Duration (Formatted)"] = "ERROR";
         }
       }),
     ),
   );
 
-  return await generateCsvBuffer(rows);
+  return generateCsvBuffer(rows);
 }
 
 function generateCsvBuffer(rows) {
